@@ -1,5 +1,6 @@
 const BaseRepository = require('../../Base/Repository/BaseRepository');
-const NotFoundError = require('../../exceptions/NotFoundError')
+const NotFoundError = require('../../exceptions/NotFoundError');
+
 class AlbumRepository extends BaseRepository {
   constructor() {
     super('albums');

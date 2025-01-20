@@ -6,7 +6,7 @@ const ParseParamService = require('../../Base/Services/ParseParamService');
 class SongService extends BaseService {
   constructor() {
     super(new SongRepository());
-    this.FETCHED_ATTRIBUTE = ['id', 'title', 'performer']; 
+    this.FETCHED_ATTRIBUTE = ['id', 'title', 'performer'];
   }
 
   async getSongsWithFilters(query) {
