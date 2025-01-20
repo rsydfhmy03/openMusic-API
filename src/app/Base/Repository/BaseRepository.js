@@ -25,17 +25,23 @@ class BaseRepository {
   async getAll(filters = {}, columns = ['*']) {
     const selectedColumns = columns.join(', ');
     const whereClauses = Object.entries(filters)
-      .map(([key, value], idx) => `"${key}" = $${idx + 1}`)
+      .map(([key, value], idx) => `"${key}" ILIKE $${idx + 1}`)
       .join(' AND ');
 
+    const params = Object.values(filters).map((val) => `%${val}%`);
+
     const sql = `
-        SELECT ${selectedColumns} 
-        FROM ${this.tableName}
-        ${whereClauses ? ` WHERE ${whereClauses}` : ''}
-      `;
-    const params = Object.values(filters);
+      SELECT ${selectedColumns}
+      FROM ${this.tableName}
+      ${whereClauses ? `WHERE ${whereClauses}` : ''}
+    `;
 
     const result = await this._pool.query(sql, params);
+
+    if (result.rows.length === 0) {
+      throw new NotFoundError('Data is not found with the given filter');
+    }
+
     return result.rows;
   }
 

@@ -10,7 +10,8 @@ class SongService extends BaseService {
   }
 
   async getSongsWithFilters(query) {
-    const filters = ParseParamService.parseQueryParams(query);
+    const allowedFields = ['title', 'performer'];
+    const filters = ParseParamService.parseQueryParams(query, allowedFields);
     return this.repository.getAll(filters, this.FETCHED_ATTRIBUTE);
   }
 }
