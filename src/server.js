@@ -6,18 +6,20 @@ const initServices = require('./app/config/servicesInitializer');
 const validators = require('./validators');
 const ClientError = require('./app/exceptions/ClientError');
 
+/**
+ * Initializes the server, registers plugins, and starts the application.
+ *
+ * @async
+ * @returns {Promise<void>} Resolves when the server is started successfully.
+ */
 const init = async () => {
   const service = initServices();
   const server = await createServer();
-  console.log('Validators:', validators.AlbumsValidator);
   await registerPlugins(server, service, validators);
-  // await registerPlugins(server);
 
   server.ext('onPreResponse', (request, h) => {
-    // mendapatkan konteks response dari request
     const { response } = request;
 
-    // penanganan client error secara internal.
     if (response instanceof ClientError) {
       const newResponse = h.response({
         status: 'fail',

@@ -1,11 +1,30 @@
 const BaseRepository = require('../../Base/Repository/BaseRepository');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
+/**
+ * Represents a repository for managing albums.
+ * This class extends the {@link BaseRepository} and provides specific implementations for album-related operations.
+ * @class
+ * @extends BaseRepository
+ */
 class AlbumRepository extends BaseRepository {
+  /**
+   * Creates an instance of AlbumRepository.
+   * @constructor
+   */
   constructor() {
     super('albums');
   }
 
+  /**
+   * Retrieves an album by its ID along with its associated songs.
+   * This method overrides the `getById` method from the `BaseRepository` class to provide more specific functionality
+   * for retrieving album details, including related songs.
+   * 
+   * @param {string} id - The ID of the album to retrieve.
+   * @returns {Promise<Object>} - A promise that resolves to an album object, which includes album details and its associated songs.
+   * @throws {NotFoundError} - If no album is found with the given ID.
+   */
   async getById(id) {
     const albumQuery = `
       SELECT id, name, year
