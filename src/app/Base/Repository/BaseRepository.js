@@ -21,18 +21,33 @@ class BaseRepository {
    * @param {Object} [filters={}] - A key-value object of filters.
    * @returns {Promise<Array<Object>>} - An array of objects representing the filtered data.
    */
-  async getAll(filters = {}) {
-    const whereClauses = Object.entries(filters)
-      .map(([key, value], idx) => `"${key}" = $${idx + 1}`)
-      .join(' AND ');
+  // async getAll(filters = {}) {
+  //   const whereClauses = Object.entries(filters)
+  //     .map(([key, value], idx) => `"${key}" = $${idx + 1}`)
+  //     .join(' AND ');
 
-    const sql = `SELECT * FROM ${this.tableName}${whereClauses ? ` WHERE ${whereClauses}` : ''}`;
-    const params = Object.values(filters);
+  //   const sql = `SELECT * FROM ${this.tableName}${whereClauses ? ` WHERE ${whereClauses}` : ''}`;
+  //   const params = Object.values(filters);
 
-    const result = await this._pool.query(sql, params);
-    return result.rows;
-  }
+  //   const result = await this._pool.query(sql, params);
+  //   return result.rows;
+  // }
+    async getAll(filters = {}, columns = ['*']) {
+      const selectedColumns = columns.join(', '); 
+      const whereClauses = Object.entries(filters)
+        .map(([key, value], idx) => `"${key}" = $${idx + 1}`)
+        .join(' AND ');
 
+      const sql = `
+        SELECT ${selectedColumns} 
+        FROM ${this.tableName}
+        ${whereClauses ? ` WHERE ${whereClauses}` : ''}
+      `;
+      const params = Object.values(filters);
+
+      const result = await this._pool.query(sql, params);
+      return result.rows;
+    }
   /**
    * Retrieves a single data by its ID.
    *

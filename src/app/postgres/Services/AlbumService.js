@@ -1,10 +1,10 @@
 // import BaseService from '../../Base/Services/BaseService';
 const BaseService = require('../../Base/Services/BaseService');
-const albumRepository = require('../Repository/AlbumRepository');
+const AlbumRepository = require('../Repository/AlbumRepository');
 
 class AlbumService extends BaseService {
   constructor() {
-    super(new albumRepository());
+    super(new AlbumRepository());
   }
 
   async getAlbumWithSongs(albumId) {
