@@ -1,10 +1,10 @@
 /**
  * BaseService is a generic service class that provides common methods for interacting with a data repository.
  * It allows performing CRUD (Create, Read, Update, Delete) operations on the underlying repository.
- * 
+ *
  * The service is initialized with a specific repository which is responsible for the actual data manipulation.
  * This class can be extended for more specific business logic or repository interactions.
- * 
+ *
  * @template T - The type of data handled by this service.
  */
 class BaseService {

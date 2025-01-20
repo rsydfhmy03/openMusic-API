@@ -17,7 +17,7 @@ class AlbumService extends BaseService {
   constructor() {
     super(new AlbumRepository());
   }
-  
+
   /**
    * Retrieves an album and its associated songs.
    * @async

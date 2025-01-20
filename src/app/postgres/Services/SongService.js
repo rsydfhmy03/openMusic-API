@@ -10,7 +10,7 @@ const ParseParamService = require('../../Base/Services/ParseParamService');
  * @extends BaseService
  */
 class SongService extends BaseService {
-   /**
+  /**
    * Creates an instance of SongService.
    * Initializes the service with an instance of {@link SongRepository} for data access.
    * @constructor

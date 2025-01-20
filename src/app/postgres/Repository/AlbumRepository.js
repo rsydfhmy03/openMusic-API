@@ -20,7 +20,7 @@ class AlbumRepository extends BaseRepository {
    * Retrieves an album by its ID along with its associated songs.
    * This method overrides the `getById` method from the `BaseRepository` class to provide more specific functionality
    * for retrieving album details, including related songs.
-   * 
+   *
    * @param {string} id - The ID of the album to retrieve.
    * @returns {Promise<Object>} - A promise that resolves to an album object, which includes album details and its associated songs.
    * @throws {NotFoundError} - If no album is found with the given ID.

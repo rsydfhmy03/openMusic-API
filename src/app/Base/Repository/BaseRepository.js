@@ -25,7 +25,7 @@ class BaseRepository {
 
   /**
    * Retrieves all data from the table, optionally filtered by specified criteria.
-   * 
+   *
    * @async
    * @param {Object} [filters={}] - A key-value object where the keys are column names and the values are the filter values.
    * @param {Array<string>} [columns=['*']] - An array of columns to retrieve. Defaults to all columns.
@@ -57,7 +57,7 @@ class BaseRepository {
 
   /**
    * Retrieves a single data entry by its ID.
-   * 
+   *
    * @async
    * @param {string} id - The ID of the data to retrieve.
    * @returns {Promise<Object>} - A promise that resolves to the object representing the retrieved data.
@@ -72,7 +72,7 @@ class BaseRepository {
 
   /**
    * Creates a new data entry in the table.
-   * 
+   *
    * @async
    * @param {Object} data - A key-value object of data to be inserted into the table.
    * @returns {Promise<string>} - A promise that resolves to the ID of the newly created data.
@@ -101,7 +101,7 @@ class BaseRepository {
 
   /**
    * Updates a single data entry by its ID.
-   * 
+   *
    * @async
    * @param {string} id - The ID of the data entry to update.
    * @param {Object} data - A key-value object of data to be updated.
@@ -121,7 +121,7 @@ class BaseRepository {
 
   /**
    * Deletes a single data entry by its ID.
-   * 
+   *
    * @async
    * @param {string} id - The ID of the data entry to delete.
    * @throws {NotFoundError} - If no data is found with the given ID.
