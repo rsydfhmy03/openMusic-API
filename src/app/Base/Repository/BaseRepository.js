@@ -1,7 +1,8 @@
 const { Pool } = require('pg');
+const { customAlphabet } = require('nanoid');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const ClientError = require('../../exceptions/ClientError');
-const { customAlphabet } = require('nanoid');
+
 class BaseRepository {
   /**
    * Initializes the BaseRepository instance.
@@ -55,31 +56,29 @@ class BaseRepository {
    */
   async create(data) {
     try {
-
-        if (!data.id) {
-          data.id = `${this.tableName}-${this.nanoid()}`;
-        }
-  
-        console.log(data, 'data');
-        const keys = Object.keys(data);
-        const values = Object.values(data);
-  
-        const columns = keys.map((key) => `"${key}"`).join(', ');
-        const placeholders = keys.map((_, idx) => `$${idx + 1}`).join(', ');
-        console.log(this.tableName, 'table');
-  
-        const sql = `INSERT INTO ${this.tableName} (${columns}) VALUES (${placeholders}) RETURNING id`;
-        console.log(sql, 'sql');
-  
-        const result = await this._pool.query(sql, values);
-        console.log(result, 'result');
-        return result.rows[0].id;
-      } catch (error) {
-        console.error('Database error:', error.message);
-        throw new ClientError(error.message);
+      if (!data.id) {
+        data.id = `${this.tableName}-${this.nanoid()}`;
       }
+
+      console.log(data, 'data');
+      const keys = Object.keys(data);
+      const values = Object.values(data);
+
+      const columns = keys.map((key) => `"${key}"`).join(', ');
+      const placeholders = keys.map((_, idx) => `$${idx + 1}`).join(', ');
+      console.log(this.tableName, 'table');
+
+      const sql = `INSERT INTO ${this.tableName} (${columns}) VALUES (${placeholders}) RETURNING id`;
+      console.log(sql, 'sql');
+
+      const result = await this._pool.query(sql, values);
+      console.log(result, 'result');
+      return result.rows[0].id;
+    } catch (error) {
+      console.error('Database error:', error.message);
+      throw new ClientError(error.message);
+    }
   }
-  
 
   /**
    * Updates a single data by its ID.

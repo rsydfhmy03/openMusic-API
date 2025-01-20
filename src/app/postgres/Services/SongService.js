@@ -1,9 +1,11 @@
 // import BaseService from '../../Base/Services/BaseService';
 const BaseService = require('../../Base/Services/BaseService');
+const songRepository = require('../Repository/SongRepository');
+const ParseParamService = require('../../Base/Services/ParseParamService');
 
 class SongService extends BaseService {
-  constructor(songRepository) {
-    super(songRepository);
+  constructor() {
+    super(new songRepository());
   }
 
   async getSongsWithFilters(query) {
