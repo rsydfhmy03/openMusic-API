@@ -34,14 +34,14 @@ exports.up = (pgm) => {
           type: 'INTEGER',
           notNull: false,
         },
-        album_id: {
+        albumId: {
           type: 'VARCHAR(50)',
           notNull: false,
         },
       });
       pgm.addConstraint('songs', 'fk_songs_album_id', {
         foreignKeys: {
-            columns: 'album_id',
+            columns: 'albumId',
             references: 'albums(id)',  
             onDelete: 'SET NULL',      
             onUpdate: 'CASCADE',      
