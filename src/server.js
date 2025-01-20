@@ -4,32 +4,30 @@ const createServer = require('./app/config/serverConfig');
 const registerPlugins = require('./app/config/pluginLoader');
 const initServices = require('./app/config/servicesInitializer');
 const validators = require('./validators');
-
+const ClientError = require('./app/exceptions/ClientError');
 const init = async () => {
   const service = initServices();
   const server = await createServer();
+  console.log('Validators:', validators.AlbumsValidator); 
+  await registerPlugins(server, service, validators);
+// await registerPlugins(server);
 
-//   await registerPlugins(server, service, validators);
-await registerPlugins(server);
+    server.ext('onPreResponse', (request, h) => {
+        // mendapatkan konteks response dari request
+        const { response } = request;
 
-  server.ext('onPreResponse', (request, h) => {
-    const { response } = request;
-    if (response instanceof Error) {
-      const isClientError = response.isBoom && response.output.statusCode < 500;
-      if (isClientError) {
-        return h.response({
-          status: 'fail',
-          message: response.message,
-        }).code(response.output.statusCode);
-      }
+        // penanganan client error secara internal.
+        if (response instanceof ClientError) {
+        const newResponse = h.response({
+            status: 'fail',
+            message: response.message,
+        });
+        newResponse.code(response.statusCode);
+        return newResponse;
+        }
 
-      return h.response({
-        status: 'error',
-        message: 'terjadi kegagalan pada server kami',
-      }).code(500);
-    }
-    return h.continue;
-  });
+        return h.continue;
+    });
 
   await server.start();
   console.log(`Server berjalan pada ${server.info.uri}`);

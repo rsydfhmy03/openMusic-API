@@ -10,7 +10,9 @@ class AlbumHandler {
 
     async postAlbumHandler(request, h) {
         console.log(request.payload);
-        // this._validator.validateAlbumPayload(request.payload);
+        console.log(this._validator, "ini validator");
+        this._validator.validateAlbumPayload(request.payload);
+        console.log("PASS")
         console.log("pass");
         const albumId = await this._albumService.create(request.payload);
         console.log(albumId);

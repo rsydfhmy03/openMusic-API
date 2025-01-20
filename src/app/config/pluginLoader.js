@@ -7,25 +7,28 @@ const songsService = require('../postgres/Services/SongService');
 const SongsValidator = require('../../validators/songs');
 // const albumsService = new albumsService();
 // const songsService = new songsService();
-const registerPlugins = async (server) => {
+const registerPlugins = async (server, service, validators) => {
     
-    
+    console.log('Albums Validator:', validators.AlbumsValidator);
   await server.register([
+
     {
       plugin: albums,
       options: {
-        service: new albumsService(),
-        validator: AlbumsValidator,
+        // service: new albumsService(),
+        service : service.albumsService,
+        validator: validators.AlbumsValidator,
       },
     },
     {
       plugin: songs,
       options: {
-        service: new songsService(),
-        validator: SongsValidator,
+        service: service.songsService,
+        validator: validators.SongsValidator,
       },
     },
   ]);
+  console.log('Plugin loaded', server.register);
 };
 
 module.exports = registerPlugins;
