@@ -5,7 +5,7 @@ This readme provides an overview and instructions for setting up the Open Music 
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Prerequisites](#author)
+- [Author](#author)
 
 ## Introduction
 
