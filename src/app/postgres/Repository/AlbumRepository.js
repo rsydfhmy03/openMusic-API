@@ -1,35 +1,51 @@
-// import BaseRepository from '../../Base/Repository/BaseRepository';
 const BaseRepository = require('../../Base/Repository/BaseRepository');
+const NotFoundError = require('../../exceptions/NotFoundError');
 
+/**
+ * Represents a repository for managing albums.
+ * This class extends the {@link BaseRepository} and provides specific implementations for album-related operations.
+ * @class
+ * @extends BaseRepository
+ */
 class AlbumRepository extends BaseRepository {
   /**
-     * Creates an instance of AlbumRepository.
-     */
+   * Creates an instance of AlbumRepository.
+   * @constructor
+   */
   constructor() {
     super('albums');
   }
 
   /**
-     * Retrieves an album along with its associated songs.
-     *
-     * @param {string} albumId - The ID of the album to retrieve.
-     * @returns {Promise<object>} The album data with an array of its songs.
-     * @throws {Error} If the album with the given ID is not found.
-     */
-  async getAlbumWithSongs(albumId) {
-    // Mengambil album berdasarkan ID
-    const album = await this.getById(albumId);
+   * Retrieves an album by its ID along with its associated songs.
+   * This method overrides the `getById` method from the `BaseRepository` class to provide more specific functionality
+   * for retrieving album details, including related songs.
+   *
+   * @param {string} id - The ID of the album to retrieve.
+   * @returns {Promise<Object>} - A promise that resolves to an album object, which includes album details and its associated songs.
+   * @throws {NotFoundError} - If no album is found with the given ID.
+   */
+  async getById(id) {
+    const albumQuery = `
+      SELECT id, name, year
+      FROM albums
+      WHERE id = $1
+    `;
 
-    // Mengambil daftar lagu yang terkait dengan album tersebut
-    const sql = `
-            SELECT id, title, performer 
-            FROM songs 
-            WHERE album_id = $1
-        `;
-    const result = await this._pool.query(sql, [albumId]);
+    const songQuery = `
+      SELECT id, title, performer
+      FROM songs
+      WHERE "albumId" = $1
+    `;
+    const albumResult = await this._pool.query(albumQuery, [id]);
+    if (albumResult.rows.length === 0) throw new NotFoundError(`Album with ID ${id} not found`);
 
-    // Menambahkan daftar lagu ke objek album
-    return { ...album, songs: result.rows };
+    const songsResult = await this._pool.query(songQuery, [id]);
+
+    const album = albumResult.rows[0];
+    album.songs = songsResult.rows;
+
+    return album;
   }
 }
 

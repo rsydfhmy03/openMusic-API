@@ -1,28 +1,31 @@
 const albums = require('../../api/albums');
-const albumsService = require('../postgres/Services/AlbumService');
-const AlbumsValidator = require('../../validators/albums');
-
 const songs = require('../../api/songs');
-const songsService = require('../postgres/Services/SongService');
-const SongsValidator = require('../../validators/songs');
-// const albumsService = new albumsService();
-// const songsService = new songsService();
-const registerPlugins = async (server) => {
-    
-    
+
+/**
+ * Registers plugins to the Hapi server.
+ *
+ * @async
+ * @param {Object} server - The Hapi server instance.
+ * @param {Object} service - Object containing service instances.
+ * @param {Object} validators - Object containing validator instances.
+ * @returns {Promise<void>} Resolves when all plugins are registered.
+ *
+ */
+const registerPlugins = async (server, service, validators) => {
   await server.register([
+
     {
       plugin: albums,
       options: {
-        service: new albumsService(),
-        validator: AlbumsValidator,
+        service: service.albumsService,
+        validator: validators.AlbumsValidator,
       },
     },
     {
       plugin: songs,
       options: {
-        service: new songsService(),
-        validator: SongsValidator,
+        service: service.songsService,
+        validator: validators.SongsValidator,
       },
     },
   ]);
