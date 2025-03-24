@@ -1,5 +1,6 @@
 const albums = require('../../api/albums');
 const songs = require('../../api/songs');
+const users = require('../../api/users');
 
 /**
  * Registers plugins to the Hapi server.
@@ -26,6 +27,13 @@ const registerPlugins = async (server, service, validators) => {
       options: {
         service: service.songsService,
         validator: validators.SongsValidator,
+      },
+    },
+    {
+      plugin: users,
+      options: {
+        service: service.userService,
+        validator: validators.UsersValidator,
       },
     },
   ]);
