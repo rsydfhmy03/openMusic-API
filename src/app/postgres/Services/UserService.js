@@ -38,7 +38,18 @@ class UserService extends BaseService {
   }
 
   async verifyUserCredential(username, password) {
-    return this._repository.verifyUserCredential(username, password);
+    console.log('🔵 Debug: di fungsi verifyUserCredential', username);
+    console.log('🔵 Debug: this._repository:', this.repository);
+
+    if (!this.repository) {
+      throw new Error('❌ this._repository tidak tersedia di UserService!');
+    }
+
+    if (typeof this.repository.verifyUserCredential !== 'function') {
+      throw new Error('❌ this._repository.verifyUserCredential tidak ditemukan!');
+    }
+
+    return this.repository.verifyUserCredential(username, password);
   }
 }
 

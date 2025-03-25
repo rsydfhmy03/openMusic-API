@@ -1,6 +1,7 @@
 const albums = require('../../api/albums');
 const songs = require('../../api/songs');
 const users = require('../../api/users');
+const authentications = require('../../api/authentications');
 
 /**
  * Registers plugins to the Hapi server.
@@ -13,6 +14,7 @@ const users = require('../../api/users');
  *
  */
 const registerPlugins = async (server, service, validators) => {
+  console.log('🟡 Debug: registerPlugins service:', service);
   await server.register([
 
     {
@@ -34,6 +36,15 @@ const registerPlugins = async (server, service, validators) => {
       options: {
         service: service.userService,
         validator: validators.UsersValidator,
+      },
+    },
+    {
+      plugin: authentications,
+      options: {
+        authenticationsService: service.authenticationsService,
+        usersService: service.userService,
+        tokenManager: service.tokenManager,
+        validator: validators.AuthenticationsValidator,
       },
     },
   ]);

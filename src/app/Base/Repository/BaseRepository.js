@@ -132,6 +132,30 @@ class BaseRepository {
 
     if (result.rowCount === 0) throw new NotFoundError(`Data with ID ${id} not found`);
   }
+
+  /**
+ * Deletes records from the table based on given conditions.
+ *
+ * @async
+ * @param {Object} filters - A key-value object where keys are column names and values are the filter values.
+ * @param {string} [customTableName] - An optional table name override if deleting from a different table.
+ * @throws {NotFoundError} - If no records are deleted.
+ */
+  async deleteWhere(filters, customTableName = null) {
+    const table = customTableName || this.tableName;
+    const whereClauses = Object.keys(filters)
+      .map((key, index) => `"${key}" = $${index + 1}`)
+      .join(' AND ');
+
+    const values = Object.values(filters);
+    const sql = `DELETE FROM ${table} WHERE ${whereClauses} RETURNING *`;
+
+    const result = await this._pool.query(sql, values);
+
+    if (result.rowCount === 0) {
+      throw new NotFoundError('No matching records found to delete');
+    }
+  }
 }
 
 module.exports = BaseRepository;

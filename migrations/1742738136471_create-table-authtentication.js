@@ -1,5 +1,9 @@
 exports.up = (pgm) => {
   pgm.createTable('authentications', {
+    id: {
+      type: 'VARCHAR(35)',
+      primaryKey: true,
+    },
     token: {
       type: 'TEXT',
       notNull: true,
