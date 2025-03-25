@@ -5,7 +5,7 @@ const registerPlugins = require('./app/config/pluginLoader');
 const initServices = require('./app/config/servicesInitializer');
 const validators = require('./validators');
 const ClientError = require('./app/exceptions/ClientError');
-
+const InvariantError = require('./app/exceptions/InvariantError');
 /**
  * Initializes the server, registers plugins, and starts the application.
  *
@@ -19,16 +19,17 @@ const init = async () => {
 
   server.ext('onPreResponse', (request, h) => {
     const { response } = request;
-
-    if (response instanceof ClientError) {
+    if (response instanceof Error) {
+      console.error('🔴 Debug: Error di onPreResponse:', response.message, response.name, response.statusCode);
+    }
+    if (response instanceof ClientError || response instanceof InvariantError) {
       const newResponse = h.response({
         status: 'fail',
         message: response.message,
       });
-      newResponse.code(response.statusCode);
+      newResponse.code(response.statusCode || 400);
       return newResponse;
     }
-
     return h.continue;
   });
 
