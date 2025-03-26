@@ -1,4 +1,6 @@
+/* eslint-disable no-undef */
 const autoBind = require('auto-bind');
+const InvariantError = require('../../app/exceptions/InvariantError');
 
 class PlaylistsHandler {
   constructor(playlistsService, songsService, validator) {
@@ -54,24 +56,63 @@ class PlaylistsHandler {
     };
   }
 
+  //   async postPlaylistSongByIdHandler(request, h) {
+  //     this._validator.validateSongPlaylistPayload(request.payload);
+
+  //     const { songId } = request.payload;
+  //     await this._songsService.getById(songId);
+
+  //     const { id: playlistId } = request.params;
+  //     const { id: credentialId } = request.auth.credentials;
+  //     await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
+  //     console.log('🔵 Debug: Menambahkan lagu ke playlist:', { playlistId, songId });
+
+  //     await this._playlistsService.addSongToPlaylist(playlistId, songId);
+  //     await this._playlistsService.addActivity(playlistId, songId, credentialId, 'add');
+
+  //     const response = h.response({
+  //       status: 'success',
+  //       message: 'Musik berhasil ditambahkan ke dalam playlist',
+  //     });
+  //     response.code(201);
+  //     return response;
+  //   }
   async postPlaylistSongByIdHandler(request, h) {
-    this._validator.validateSongPlaylistPayload(request.payload);
+    try {
+      this._validator.validateSongPlaylistPayload(request.payload);
 
-    const { songId } = request.payload;
-    await this._songsService.getById(songId);
+      const { songId } = request.payload;
+      await this._songsService.getById(songId);
 
-    const { id: playlistId } = request.params;
-    const { id: credentialId } = request.auth.credentials;
-    await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
-    await this._playlistsService.addSongToPlaylist(playlistId, songId);
-    await this._playlistsService.addActivity(playlistId, songId, credentialId, 'add');
+      const { id: playlistId } = request.params;
+      const { id: credentialId } = request.auth.credentials;
 
-    const response = h.response({
-      status: 'success',
-      message: 'Musik berhasil ditambahkan ke dalam playlist',
-    });
-    response.code(201);
-    return response;
+      console.log('🔵 Debug: Menambahkan lagu ke playlist:', { playlistId, songId });
+
+      await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
+      await this._playlistsService.addSongToPlaylist(playlistId, songId);
+      await this._playlistsService.addActivity(playlistId, songId, credentialId, 'add');
+
+      const response = h.response({
+        status: 'success',
+        message: 'Musik berhasil ditambahkan ke dalam playlist',
+      });
+      response.code(201);
+      return response;
+    } catch (error) {
+      console.error('🔴 Debug: Error di postPlaylistSongByIdHandler:', error);
+
+      if (error instanceof InvariantError) {
+        const response = h.response({
+          status: 'fail',
+          message: error.message,
+        });
+        response.code(400);
+        return response;
+      }
+
+      throw error;
+    }
   }
 
   async getPlaylistSongsByIdHandler(request) {
@@ -95,6 +136,7 @@ class PlaylistsHandler {
     const { id: credentialId } = request.auth.credentials;
 
     await this._playlistsService.verifyPlaylistAccess(id, credentialId);
+    console.log('🔵 Debug: Menghapus lagu dari playlist:', { playlistId: id, songId });
     await this._playlistsService.deleteSongFromPlaylist(id, songId);
     await this._playlistsService.addActivity(id, songId, credentialId, 'delete');
 

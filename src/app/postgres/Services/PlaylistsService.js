@@ -11,7 +11,7 @@ class PlaylistsService extends BaseService {
 
   async addPlaylist({ name, owner }) {
     const id = `playlist-${this.repository.nanoid()}`;
-    return this.repository.create({ id, name, owner });
+    return this.repository.createPlaylist({ id, name, owner });
   }
 
   async getPlaylists(userId) {
@@ -58,16 +58,26 @@ class PlaylistsService extends BaseService {
     const id = `activity-${this.repository.nanoid()}`;
     const time = new Date().toISOString();
 
-    await this.repository.create(
-      {
-        id, playlist_id: playlistId, song_id: songId, user_id: userId, action, time,
-      },
-      'playlist_song_activities',
-    );
+    await this.repository.addActivity({
+      id,
+      playlist_id: playlistId,
+      song_id: songId,
+      user_id: userId,
+      action,
+      time,
+    });
   }
 
   async verifyPlaylistOwner(id, userId) {
-    await this.repository.verifyPlaylistOwner(id, userId);
+    const playlist = await this.getById(id);
+
+    if (!playlist) {
+      throw new NotFoundError('Playlist tidak ditemukan');
+    }
+
+    if (playlist.owner !== userId) {
+      throw new AuthorizationError('Anda tidak memiliki hak akses');
+    }
   }
 
   async verifyPlaylistAccess(playlistId, userId) {

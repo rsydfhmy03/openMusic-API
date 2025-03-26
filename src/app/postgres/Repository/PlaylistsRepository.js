@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const BaseRepository = require('../../Base/Repository/BaseRepository');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 const InvariantError = require('../../exceptions/InvariantError');
@@ -6,6 +7,21 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 class PlaylistsRepository extends BaseRepository {
   constructor() {
     super('playlists');
+  }
+
+  async createPlaylist({ id, name, owner }) {
+    const query = {
+      text: 'INSERT INTO playlists (id, name, owner) VALUES ($1, $2, $3) RETURNING id',
+      values: [id, name, owner],
+    };
+
+    const { rowCount, rows } = await this._pool.query(query);
+
+    if (!rowCount) {
+      throw new InvariantError('Playlist gagal ditambahkan');
+    }
+
+    return rows[0].id;
   }
 
   async getPlaylists(userId) {
@@ -43,10 +59,9 @@ class PlaylistsRepository extends BaseRepository {
 
   async isSongInPlaylist(playlistId, songId) {
     const query = {
-      text: 'SELECT id FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2',
+      text: 'SELECT id FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2 FOR UPDATE',
       values: [playlistId, songId],
     };
-
     const { rowCount } = await this._pool.query(query);
     return rowCount > 0;
   }
@@ -67,19 +82,38 @@ class PlaylistsRepository extends BaseRepository {
   }
 
   async addSongToPlaylist(playlistId, songId) {
-    const isSongExists = await this.isSongInPlaylist(playlistId, songId);
-    if (isSongExists) {
-      throw new InvariantError('Lagu sudah ada di dalam playlist');
-    }
-    const id = `song_playlist-${(this.nanoid())}`;
+    const id = `song_playlist-${this.nanoid()}`;
     const query = {
-      text: 'INSERT INTO playlist_songs VALUES ($1, $2, $3) RETURNING id',
+      text: 'INSERT INTO playlist_songs (id, playlist_id, song_id) VALUES ($1, $2, $3) RETURNING id',
       values: [id, playlistId, songId],
     };
+
+    try {
+      const { rowCount } = await this._pool.query(query);
+
+      if (!rowCount) {
+        throw new InvariantError('Musik gagal ditambahkan ke dalam playlist');
+      }
+    } catch (error) {
+      if (error.code === '23505') { // Duplicate key error
+        throw new InvariantError('Lagu sudah ada di dalam playlist');
+      }
+      throw error;
+    }
+  }
+
+  async addActivity({
+    id, playlist_id, song_id, user_id, action, time,
+  }) {
+    const query = {
+      text: 'INSERT INTO playlist_song_activities (id, playlist_id, song_id, user_id, action, time) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+      values: [id, playlist_id, song_id, user_id, action, time],
+    };
+
     const { rowCount } = await this._pool.query(query);
 
     if (!rowCount) {
-      throw new InvariantError('Musik gagal ditambahkan kedalam playlist');
+      throw new InvariantError('Gagal menambahkan aktivitas ke playlist');
     }
   }
 
