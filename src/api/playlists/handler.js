@@ -62,11 +62,8 @@ class PlaylistsHandler {
 
     const { id: playlistId } = request.params;
     const { id: credentialId } = request.auth.credentials;
-    console.log('PASS 1');
     await this._playlistsService.verifyPlaylistAccess(playlistId, credentialId);
-    console.log(playlistId, songId, credentialId, 'pass 2');
     await this._playlistsService.addSongToPlaylist(playlistId, songId);
-    console.log('PASS 3');
     await this._playlistsService.addActivity(playlistId, songId, credentialId, 'add');
 
     const response = h.response({

@@ -7,21 +7,15 @@ class AuthenticationsHandler {
     this._tokenManager = tokenManager;
     this._validator = validator;
     autoBind(this);
-    console.log('🟢 Debug (after autoBind): this._usersService.verifyUserCredential:', typeof this._usersService.verifyUserCredential);
   }
 
   async postAuthenticationHandler(request, h) {
     this._validator.validatePostAuthenticationPayload(request.payload);
 
     const { username, password } = request.payload;
-    console.log('🔵 Debug: pass 1');
-    console.log('🟡 Debug: this._usersService:', this._usersService);
     if (!this._usersService) {
       throw new Error('❌ this._usersService tidak terdefinisi! Cek constructor atau cara binding.');
     }
-
-    console.log('🔵 Debug: verifyUserCredential ada?', typeof this._usersService.verifyUserCredential);
-    console.log('🔵 Debug: pass 2');
     const id = await this._usersService.verifyUserCredential(username, password);
 
     const accessToken = this._tokenManager.generateAccessToken({ id });

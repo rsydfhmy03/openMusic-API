@@ -10,16 +10,12 @@ module.exports = {
     tokenManager,
     validator,
   }) => {
-    console.log('🟡 Debug: usersService di plugin:', usersService);
-    console.log('🟢 Debug: usersService.verifyUserCredential:', typeof usersService.verifyUserCredential);
-
     const authenticationsHandler = new AuthenticationsHandler(
       authenticationsService,
       usersService,
       tokenManager,
       validator,
     );
-    console.log('🟢 Debug: authenticationsHandler._usersService:', typeof authenticationsHandler._usersService.verifyUserCredential);
 
     server.route(routes(authenticationsHandler));
   },
