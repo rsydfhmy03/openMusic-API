@@ -3,6 +3,8 @@ const SongsService = require('../postgres/Services/SongService');
 const UserService = require('../postgres/Services/UserService');
 const AuthenticationsService = require('../postgres/Services/AuthenticationsService ');
 const TokenManager = require('../tokenize/tokenManager');
+const PlaylistsService = require('../postgres/Services/PlaylistsService');
+const CollaborationsService = require('../postgres/Services/CollaborationsService');
 /**
  * Initializes and returns all service instances.
  *
@@ -15,13 +17,16 @@ const initServices = () => {
   const userService = new UserService();
   const authenticationsService = new AuthenticationsService();
   const tokenManager = TokenManager;
-  console.log('🟢 Debug userService:', userService); // Debugging userService
+  const playlistsService = new PlaylistsService();
+  const collaborationsService = new CollaborationsService();
   return {
     albumsService,
     songsService,
     userService,
     authenticationsService,
     tokenManager,
+    playlistsService,
+    collaborationsService,
   };
 };
 

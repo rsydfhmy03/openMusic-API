@@ -3,7 +3,7 @@ const InvariantError = require('../../exceptions/InvariantError');
 
 class AuthenticationsRepository extends BaseRepository {
   constructor() {
-    super('authentications'); // Sesuaikan dengan nama tabel di database
+    super('authentications');
   }
 
   async getAll(filters = {}, columns = ['*']) {

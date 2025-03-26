@@ -1,4 +1,5 @@
 const BaseService = require('../../Base/Services/BaseService');
+const AuthorizationError = require('../../exceptions/AuthorizationError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 const PlaylistsRepository = require('../Repository/PlaylistsRepository');
 
@@ -31,8 +32,7 @@ class PlaylistsService extends BaseService {
   }
 
   async addSongToPlaylist(playlistId, songId) {
-    const id = `song_playlist-${this.repository.nanoid()}`;
-    await this.repository.create({ id, playlist_id: playlistId, song_id: songId }, 'playlist_songs');
+    await this.repository.addSongToPlaylist(playlistId, songId);
   }
 
   async getPlaylistSongsById(playlistId, userId) {
@@ -51,19 +51,7 @@ class PlaylistsService extends BaseService {
 
   async getPlaylistActivitiesById(playlistId) {
     await this.getPlaylistById(playlistId);
-
-    const query = {
-      text: `SELECT u.username, s.title, a.action, a.time
-             FROM playlist_song_activities a
-             INNER JOIN songs s ON a.song_id = s.id
-             INNER JOIN users u ON a.user_id = u.id
-             WHERE a.playlist_id = $1
-             ORDER BY a.time ASC`,
-      values: [playlistId],
-    };
-
-    const { rows } = await this.repository.pool.query(query);
-    return rows;
+    return this.repository.getPlaylistActivitiesById(playlistId);
   }
 
   async addActivity(playlistId, songId, userId, action) {
@@ -93,7 +81,7 @@ class PlaylistsService extends BaseService {
       try {
         await this._collaborationsService.verifyCollaborator(playlistId, userId);
       } catch {
-        throw error;
+        throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
       }
     }
   }

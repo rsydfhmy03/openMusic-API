@@ -1,4 +1,5 @@
 const BaseRepository = require('../../Base/Repository/BaseRepository');
+const AuthorizationError = require('../../exceptions/AuthorizationError');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
 
@@ -23,7 +24,7 @@ class PlaylistsRepository extends BaseRepository {
       values: [userId],
     };
 
-    const { rows } = await this.pool.query(query);
+    const { rows } = await this._pool.query(query);
     return rows;
   }
 
@@ -36,8 +37,51 @@ class PlaylistsRepository extends BaseRepository {
       values: [playlistId],
     };
 
-    const { rows } = await this.pool.query(query);
+    const { rows } = await this._pool.query(query);
     return rows;
+  }
+
+  async isSongInPlaylist(playlistId, songId) {
+    const query = {
+      text: 'SELECT id FROM playlist_songs WHERE playlist_id = $1 AND song_id = $2',
+      values: [playlistId, songId],
+    };
+
+    const { rowCount } = await this._pool.query(query);
+    return rowCount > 0;
+  }
+
+  async getPlaylistActivitiesById(playlistId) {
+    const query = {
+      text: `SELECT u.username, s.title, a.action, a.time
+             FROM playlist_song_activities a
+             INNER JOIN songs s ON a.song_id = s.id
+             INNER JOIN users u ON a.user_id = u.id
+             WHERE a.playlist_id = $1
+             ORDER BY a.time ASC`,
+      values: [playlistId],
+    };
+
+    const { rows } = await this._pool.query(query);
+    return rows;
+  }
+
+  async addSongToPlaylist(playlistId, songId) {
+    const isSongExists = await this.isSongInPlaylist(playlistId, songId);
+    if (isSongExists) {
+      throw new InvariantError('Lagu sudah ada di dalam playlist');
+    }
+    const id = `song_playlist-${(this.nanoid())}`;
+    const query = {
+      text: 'INSERT INTO playlist_songs VALUES ($1, $2, $3) RETURNING id',
+      values: [id, playlistId, songId],
+    };
+    console.log(query);
+    const { rowCount } = await this._pool.query(query);
+
+    if (!rowCount) {
+      throw new InvariantError('Musik gagal ditambahkan kedalam playlist');
+    }
   }
 
   async verifyPlaylistOwner(id, userId) {
@@ -48,7 +92,17 @@ class PlaylistsRepository extends BaseRepository {
     }
 
     if (playlist.owner !== userId) {
-      throw new InvariantError('Anda tidak memiliki hak akses');
+      throw new AuthorizationError('Anda tidak memiliki hak akses');
+    }
+  }
+
+  async verifyPlaylistAccess(playlistId, userId) {
+    try {
+      await this.verifyPlaylistOwner(playlistId, userId);
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
     }
   }
 }
