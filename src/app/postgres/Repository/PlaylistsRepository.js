@@ -44,6 +44,26 @@ class PlaylistsRepository extends BaseRepository {
     return rows;
   }
 
+  async getById(playlistId) {
+    const query = {
+      text: `
+        SELECT p.id, p.name, u.username
+        FROM playlists p
+        INNER JOIN users u ON p.owner = u.id
+        WHERE p.id = $1
+      `,
+      values: [playlistId],
+    };
+
+    const { rowCount, rows } = await this._pool.query(query);
+
+    if (!rowCount) {
+      throw new NotFoundError('Playlist tidak ditemukan');
+    }
+
+    return rows[0];
+  }
+
   async getPlaylistSongsById(playlistId) {
     const query = {
       text: `SELECT s.id, s.title, s.performer
